@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "88115024354",
+    "project_id": "crafto-copy",
+    "storage_bucket": "crafto-copy.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88115024354:android:57f43f352aefa716c529bb",
+        "android_client_info": {
+          "package_name": "com.example.admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRe4llB6VNKMDklUCFS0FXguDnE9zL7HA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88115024354:android:f04db9071b6f91b6c529bb",
+        "android_client_info": {
+          "package_name": "com.example.pic_poster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRe4llB6VNKMDklUCFS0FXguDnE9zL7HA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
