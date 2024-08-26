@@ -189,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
               TextButton(
                 child: const Text('OK'),
                 onPressed: () {
-                  Navigator.of(context).pop(); 
+                  Navigator.of(context).pop();
                 },
               ),
             ],
@@ -210,7 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF3F5F7),
       appBar: AppBar(
         title: const Text('Profile'),
         backgroundColor: Colors.white,
@@ -225,7 +225,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: _pickImage,
                 child: CircleAvatar(
                   radius: 70,
-                  backgroundColor: Colors.grey[300],
+                  backgroundColor: Colors.white,
                   backgroundImage: _imageFile != null
                       ? FileImage(File(_imageFile!.path))
                       : (_profileImageUrl != null

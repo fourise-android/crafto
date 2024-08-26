@@ -334,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 20),
+                                    vertical: 12, horizontal: 15),
                                 textStyle: const TextStyle(
                                   fontFamily: 'CircularStd',
                                   fontSize: 16,
@@ -373,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           : Colors.black,
                                       backgroundColor: selectedFilter == filter
                                           ? const Color(0xFF5151C6)
-                                          : Colors.grey[200],
+                                          : Colors.grey[150],
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5),
                                       ),
@@ -409,224 +409,200 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Card(
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
+                              borderRadius: BorderRadius.circular(15.0),
                             ),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final double cardHeight =
                                     constraints.maxWidth * (4 / 3);
 
-                                return Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 8, 8, 0),
-                                          child: IconButton(
-                                              onPressed: () {},
-                                              icon: const Icon(
-                                                  Icons.edit_square)),
+                                return Container(
+                                  width: double.infinity,
+                                  height:
+                                      MediaQuery.of(context).size.width * 4 / 3,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                        30), // Circular corners
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white,
+                                        spreadRadius: 5,
+                                        blurRadius: 7,
+                                        offset: const Offset(
+                                            0, 3), // Shadow direction
+                                      ),
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        top: 10,
+                                        right: 10,
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 8, 8, 0),
+                                              child: IconButton(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                  Icons.edit_square,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 15),
+                                          ],
                                         ),
-                                        const SizedBox(width: 20),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16, 0, 16, 0),
-                                      child: CachedNetworkImage(
-                                        imageUrl: image['url'],
-                                        placeholder: (context, url) =>
-                                            const Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(Icons.error),
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                Container(
-                                          height: cardHeight,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(30)),
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.fitWidth,
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(15, 15, 15, 50),
+                                        child: CachedNetworkImage(
+                                          imageUrl: image['url'],
+                                          placeholder: (context, url) =>
+                                              const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(Icons.error),
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(30)),
+                                              image: DecorationImage(
+                                                image: imageProvider,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.fromLTRB(20, 20, 20, 0),
-                                      child: FutureBuilder<Map<String, String>>(
-                                        future:
-                                            fetchUserForTemplets(widget.email),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return const CircularProgressIndicator();
-                                          } else if (snapshot.hasError) {
-                                            return Text(
-                                                'Error: ${snapshot.error}');
-                                          } else if (snapshot.hasData) {
-                                            final userDetails = snapshot.data!;
-                                            return Row(
-                                              children: [
-                                                CircleAvatar(
-                                                  radius: 30,
-                                                  backgroundImage: NetworkImage(
-                                                      userDetails[
-                                                          'profilePhotoUrl']!),
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Text(
-                                                  userDetails['userName']!,
-                                                  style: const TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          } else {
-                                            return const Text(
-                                                'No user details available');
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.fromLTRB(20, 0, 20, 20),
-                                      child: FutureBuilder<Map<String, String>>(
-                                        future:
-                                            fetchUserForTemplets(widget.email),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.hasError) {
-                                            return Text(
-                                                'Error: ${snapshot.error}');
-                                          } else if (snapshot.hasData) {
-                                            final userDetails = snapshot.data!;
-                                            return Column(
-                                              children: [
-                                                const SizedBox(height: 20),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    EditTemplet(
-                                                              imageUrl:
-                                                                  image['url'],
-                                                              userName:
-                                                                  userDetails[
-                                                                      'userName']!,
-                                                              profilePhotoUrl:
-                                                                  userDetails[
-                                                                      'profilePhotoUrl']!,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: Container(
-                                                        height: 36,
-                                                        width: 140,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          gradient:
-                                                              const LinearGradient(
-                                                            colors: [
-                                                              Color(0xFF888BF4),
-                                                              Color(0xFF5151C6)
-                                                            ],
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(50),
-                                                        ),
-                                                        child: const Center(
-                                                          child: Text(
-                                                            "Share",
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontFamily:
-                                                                  'CircularStd',
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
+                                      Positioned(
+                                        bottom: 35,
+                                        left: 15,
+                                        child: Container(
+                                          color: Colors.white,
+                                          width: 350,
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                15, 15, 15, 15),
+                                            child: FutureBuilder<
+                                                Map<String, String>>(
+                                              future: fetchUserForTemplets(
+                                                  widget.email),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const CircularProgressIndicator();
+                                                } else if (snapshot.hasError) {
+                                                  return Text(
+                                                      'Error: ${snapshot.error}');
+                                                } else if (snapshot.hasData) {
+                                                  final userDetails =
+                                                      snapshot.data!;
+                                                  return Row(
+                                                    children: [
+                                                      CircleAvatar(
+                                                        radius: 30,
+                                                        backgroundImage:
+                                                            NetworkImage(
+                                                                userDetails[
+                                                                    'profilePhotoUrl']!),
+                                                        backgroundColor:
+                                                            Colors.transparent,
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Text(
+                                                        userDetails[
+                                                            'userName']!,
+                                                        style: const TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
-                                                    ),
-                                                    const SizedBox(width: 40),
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    EditTemplet(
-                                                              imageUrl:
-                                                                  image['url'],
-                                                              userName:
-                                                                  userDetails[
-                                                                      'userName']!,
-                                                              profilePhotoUrl:
-                                                                  userDetails[
-                                                                      'profilePhotoUrl']!,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: Container(
-                                                        height: 36,
-                                                        width: 140,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          gradient:
-                                                              const LinearGradient(
-                                                            colors: [
-                                                              Color(0xFF888BF4),
-                                                              Color(0xFF5151C6)
-                                                            ],
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(50),
-                                                        ),
-                                                        child: const Center(
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .file_download_outlined,
-                                                                color: Colors
-                                                                    .white,
+                                                    ],
+                                                  );
+                                                } else {
+                                                  return const Text(
+                                                      'No user details available');
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: -15,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              15, 0, 15, 15),
+                                          child: FutureBuilder<
+                                              Map<String, String>>(
+                                            future: fetchUserForTemplets(
+                                                widget.email),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasError) {
+                                                return Text(
+                                                    'Error: ${snapshot.error}');
+                                              } else if (snapshot.hasData) {
+                                                final userDetails =
+                                                    snapshot.data!;
+                                                return Column(
+                                                  children: [
+                                                    const SizedBox(height: 15),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        EditTemplet(
+                                                                  imageUrl:
+                                                                      image[
+                                                                          'url'],
+                                                                  userName:
+                                                                      userDetails[
+                                                                          'userName']!,
+                                                                  profilePhotoUrl:
+                                                                      userDetails[
+                                                                          'profilePhotoUrl']!,
+                                                                ),
                                                               ),
-                                                              SizedBox(
-                                                                  width: 10),
-                                                              Text(
-                                                                "Download",
+                                                            );
+                                                          },
+                                                          child: Container(
+                                                            height: 36,
+                                                            width: 140,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              gradient:
+                                                                  const LinearGradient(
+                                                                colors: [
+                                                                  Color(
+                                                                      0xFF888BF4),
+                                                                  Color(
+                                                                      0xFF5151C6),
+                                                                ],
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          50),
+                                                            ),
+                                                            child: const Center(
+                                                              child: Text(
+                                                                "Share",
                                                                 style:
                                                                     TextStyle(
                                                                   color: Colors
@@ -639,23 +615,100 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           .bold,
                                                                 ),
                                                               ),
-                                                            ],
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
+                                                        const SizedBox(
+                                                            width: 40),
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        EditTemplet(
+                                                                  imageUrl:
+                                                                      image[
+                                                                          'url'],
+                                                                  userName:
+                                                                      userDetails[
+                                                                          'userName']!,
+                                                                  profilePhotoUrl:
+                                                                      userDetails[
+                                                                          'profilePhotoUrl']!,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                          child: Container(
+                                                            height: 36,
+                                                            width: 140,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              gradient:
+                                                                  const LinearGradient(
+                                                                colors: [
+                                                                  Color(
+                                                                      0xFF888BF4),
+                                                                  Color(
+                                                                      0xFF5151C6),
+                                                                ],
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          50),
+                                                            ),
+                                                            child: const Center(
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons
+                                                                        .file_download_outlined,
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                                  SizedBox(
+                                                                      width:
+                                                                          10),
+                                                                  Text(
+                                                                    "Download",
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontFamily:
+                                                                          'CircularStd',
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
-                                                ),
-                                              ],
-                                            );
-                                          } else {
-                                            return const Text(
-                                                'No user details available');
-                                          }
-                                        },
+                                                );
+                                              } else {
+                                                return const Text(
+                                                    'No user details available');
+                                              }
+                                            },
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 );
                               },
                             ),

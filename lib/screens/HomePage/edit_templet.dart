@@ -102,6 +102,36 @@ class _EditTempletState extends State<EditTemplet> {
     }
   }
 
+  Future<String> fetchName(bool isBusiness, String uid) async {
+    String name = '';
+
+    if (isBusiness) {
+      // Fetch from 'business_information' collection for business users
+      final businessDoc = await FirebaseFirestore.instance
+          .collection('business_information')
+          .doc(uid)
+          .get();
+
+      if (businessDoc.exists) {
+        final data = businessDoc.data();
+        name = data?['companyName'] ?? '';
+      }
+    } else {
+      // Fetch from 'user_details' collection for regular users
+      final userDoc = await FirebaseFirestore.instance
+          .collection('user_details')
+          .doc(uid)
+          .get();
+
+      if (userDoc.exists) {
+        final data = userDoc.data();
+        name = data?['name'] ?? '';
+      }
+    }
+
+    return name;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -214,16 +244,43 @@ class _EditTempletState extends State<EditTemplet> {
                               bottom: 20,
                               left: 20,
                               right: 20,
-                              child: GestureDetector(
-                                  onTap: () async {
-                                    if (isBusiness) {
-                                      _showBusinessUpdateDialog();
-                                    } else {
-                                      _showPersonalUpdateDialog();
-                                    }
-                                  },
-                                  child:
-                                      _buildUserPhotoAndName(name, photoUrl)),
+                              child: FutureBuilder<String>(
+                                future: fetchName(isBusiness, uid),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (snapshot.hasError) {
+                                    return const Center(
+                                        child: Text('Error fetching name'));
+                                  } else if (snapshot.hasData) {
+                                    final name = snapshot.data ?? '';
+                                    return Positioned(
+                                      bottom: 20,
+                                      left: 20,
+                                      right: 20,
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          if (isBusiness) {
+                                            _showBusinessUpdateDialog();
+                                          } else {
+                                            _showPersonalUpdateDialog();
+                                          }
+                                        },
+                                        child: _buildUserPhotoAndName(
+                                            isBusiness,
+                                            name,
+                                            photoUrl,
+                                            businessLogoUrl),
+                                      ),
+                                    );
+                                  } else {
+                                    return const Center(
+                                        child: Text('No name available'));
+                                  }
+                                },
+                              ),
                             ),
                           ],
                         ),
@@ -321,21 +378,29 @@ class _EditTempletState extends State<EditTemplet> {
     );
   }
 
-  Widget _buildUserPhotoAndName(String name, String photoUrl) {
+  Widget _buildUserPhotoAndName(
+      bool isBusiness, String name, String? photoUrl, String? businessLogoUrl) {
+    String imageUrl =
+        isBusiness && businessLogoUrl != null && businessLogoUrl.isNotEmpty
+            ? businessLogoUrl
+            : (photoUrl != null && photoUrl.isNotEmpty
+                ? photoUrl
+                : 'default_image_url');
+
     return Container(
       height: 100,
       child: PageView(
         scrollDirection: Axis.horizontal,
         children: [
-          _buildSingleContainer(name, photoUrl),
-          _buildSquareContainer(name, photoUrl),
-          _buildSingleContainer(name, photoUrl),
+          _buildSingleContainer(name, imageUrl),
+          _buildSquareContainer(name, imageUrl),
+          _buildSingleContainer(name, imageUrl),
         ],
       ),
     );
   }
 
-  Widget _buildSingleContainer(String name, String photoUrl) {
+  Widget _buildSingleContainer(String name, String imageUrl) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -355,7 +420,7 @@ class _EditTempletState extends State<EditTemplet> {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundImage: NetworkImage(photoUrl),
+            backgroundImage: NetworkImage(imageUrl),
           ),
           const SizedBox(width: 12),
           Text(
@@ -370,7 +435,7 @@ class _EditTempletState extends State<EditTemplet> {
     );
   }
 
-  Widget _buildSquareContainer(String name, String photoUrl) {
+  Widget _buildSquareContainer(String name, String imageUrl) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -390,7 +455,7 @@ class _EditTempletState extends State<EditTemplet> {
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundImage: NetworkImage(photoUrl),
+            backgroundImage: NetworkImage(imageUrl),
           ),
           const SizedBox(width: 12),
           Text(
@@ -619,8 +684,8 @@ class _EditTempletState extends State<EditTemplet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Image.network(imageUrl),
-              SizedBox(height: 16),
-              Text('You selected this image.'),
+              const SizedBox(height: 16),
+              const Text('You selected this image.'),
             ],
           ),
           actions: [
@@ -636,189 +701,189 @@ class _EditTempletState extends State<EditTemplet> {
     );
   }
 
-  Future<void> _showBusinessUpdateDialog() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    Future<void> _showBusinessUpdateDialog() async {
+      // Fetch the current data
+      final document = await FirebaseFirestore.instance
+          .collection('business_information')
+          .doc(uid)
+          .get();
+      final data = document.data() as Map<String, dynamic>?;
 
-    if (uid == null) {
-      return;
-    }
+      String companyName = data?['companyName'] ?? '';
+      String businessAddress = data?['businessAddress'] ?? '';
+      String contactNumber = data?['contactNumber'] ?? '';
+      String businessMail = data?['businessMail'] ?? '';
+      final List<String> storedImageUrls =
+          List<String>.from(data?['businessLogoUrls'] ?? []);
 
-    final DocumentSnapshot document = await FirebaseFirestore.instance
-        .collection('business_information')
-        .doc(uid)
-        .get();
+      // Initialize controllers with the fetched data
+      final TextEditingController companyNameController =
+          TextEditingController(text: companyName);
+      final TextEditingController businessAddressController =
+          TextEditingController(text: businessAddress);
+      final TextEditingController contactNumberController =
+          TextEditingController(text: contactNumber);
+      final TextEditingController businessMailController =
+          TextEditingController(text: businessMail);
 
-    final data = document.data() as Map<String, dynamic>?;
+      List<String> userImages = await _fetchBusinessImages();
+      List<String> imageUrls = List.from(storedImageUrls);
+      String selectedImageUrl = imageUrls.isNotEmpty ? imageUrls[0] : '';
 
-    String companyName = data?['companyName'] ?? '';
-    String businessAddress = data?['businessAddress'] ?? '';
-    String contactNumber = data?['contactNumber'] ?? '';
-    String businessMail = data?['businessMail'] ?? '';
-    final List<String> storedImageUrls =
-        List<String>.from(data?['businessLogoUrls'] ?? []);
+      // Flag to check if an image is selected
+      bool imageSelected = false;
 
-    // Initialize controllers with the fetched data
-    final TextEditingController companyNameController =
-        TextEditingController(text: companyName);
-    final TextEditingController businessAddressController =
-        TextEditingController(text: businessAddress);
-    final TextEditingController contactNumberController =
-        TextEditingController(text: contactNumber);
-    final TextEditingController businessMailController =
-        TextEditingController(text: businessMail);
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Update Business Details"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () async {
+                      final imageUrl = await _pickImage(isBusinessLogo: true);
+                      if (imageUrl != null) {
+                        setState(() {
+                          selectedImageUrl = imageUrl;
+                          imageUrls.insert(0, imageUrl);
+                          imageSelected = true;
+                        });
+                      }
+                    },
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: selectedImageUrl.isNotEmpty
+                          ? NetworkImage(selectedImageUrl)
+                          : null,
+                      child: selectedImageUrl.isEmpty
+                          ? const Icon(Icons.add_a_photo)
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: userImages.map((imageUrl) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              photoUrl = imageUrl;
+                            });
+                            Navigator.of(context).pop();
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: photoUrl == imageUrl
+                                    ? Colors.blue
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                imageUrl,
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  TextField(
+                    controller: companyNameController,
+                    decoration: const InputDecoration(labelText: "Company Name"),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: businessAddressController,
+                    decoration: const InputDecoration(labelText: "Address"),
+                  ),
+                  TextField(
+                    controller: contactNumberController,
+                    decoration:
+                        const InputDecoration(labelText: "Contact Number"),
+                  ),
+                  TextField(
+                    controller: businessMailController,
+                    decoration: const InputDecoration(labelText: "Business Mail"),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  String newCompanyName = companyNameController.text;
+                  String newBusinessAddress = businessAddressController.text;
+                  String newContactNumber = contactNumberController.text;
+                  String newBusinessMail = businessMailController.text;
 
-    List<String> userImages = await _fetchBusinessImages();
+                  // Prepare the updated data
+                  Map<String, dynamic> updatedData = {
+                    'companyName': newCompanyName,
+                    'businessAddress': newBusinessAddress,
+                    'contactNumber': newContactNumber,
+                    'businessMail': newBusinessMail,
+                  };
 
-    List<String> imageUrls = List.from(storedImageUrls);
-    String selectedImageUrl = imageUrls.isNotEmpty ? imageUrls[0] : '';
-
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Update Business Details"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                GestureDetector(
-                  onTap: () async {
-                    final imageUrl = await _pickImage(isBusinessLogo: true);
-                    if (imageUrl != null) {
-                      setState(() {
-                        selectedImageUrl = imageUrl;
-                        imageUrls.insert(0, imageUrl);
-                      });
+                  // If an image was selected, update the image URLs
+                  if (imageSelected) {
+                    for (int i = 0; i < imageUrls.length; i++) {
+                      imageUrls[i] =
+                          await _uploadBusinessImage(imageUrls[i], uid, i + 1);
                     }
-                  },
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundImage: selectedImageUrl.isNotEmpty
-                        ? NetworkImage(selectedImageUrl)
-                        : null,
-                    child: selectedImageUrl.isEmpty
-                        ? const Icon(Icons.add_a_photo)
-                        : null,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: userImages.map((imageUrl) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            photoUrl = imageUrl;
-                          });
-                          Navigator.of(context).pop();
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: photoUrl == imageUrl
-                                  ? Colors.blue
-                                  : Colors.transparent,
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              imageUrl,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                TextField(
-                  controller: companyNameController,
-                  decoration: const InputDecoration(labelText: "Company Name"),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: businessAddressController,
-                  decoration: const InputDecoration(labelText: "Address"),
-                ),
-                TextField(
-                  controller: contactNumberController,
-                  decoration:
-                      const InputDecoration(labelText: "Contact Number"),
-                ),
-                TextField(
-                  controller: businessMailController,
-                  decoration: const InputDecoration(labelText: "Business Mail"),
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () async {
-                String newCompanyName = companyNameController.text;
-                String newBusinessAddress = businessAddressController.text;
-                String newContactNumber = contactNumberController.text;
-                String newBusinessMail = businessMailController.text;
-
-                if (newCompanyName.isNotEmpty ||
-                    newBusinessAddress.isNotEmpty ||
-                    newContactNumber.isNotEmpty ||
-                    newBusinessMail.isNotEmpty) {
-                  for (int i = 0; i < imageUrls.length; i++) {
-                    imageUrls[i] =
-                        await _uploadBusinessImage(imageUrls[i], uid, i + 1);
+                    updatedData['businessLogoUrls'] = imageUrls;
                   }
 
                   await FirebaseFirestore.instance
                       .collection('business_information')
                       .doc(uid)
-                      .set({
-                    'companyName': newCompanyName,
-                    'businessAddress': newBusinessAddress,
-                    'contactNumber': newContactNumber,
-                    'businessMail': newBusinessMail,
-                    'businessLogoUrls': imageUrls,
-                  });
+                      .set(updatedData);
 
                   setState(() {
                     companyName = newCompanyName;
                     businessAddress = newBusinessAddress;
                     contactNumber = newContactNumber;
                     businessMail = newBusinessMail;
-                    businessLogoUrl = imageUrls[0];
+                    if (imageUrls.isNotEmpty) {
+                      businessLogoUrl = imageUrls[0];
+                    }
                   });
 
                   Navigator.of(context).pop();
-                }
-              },
-              child: const Text("Update"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+                },
+                child: const Text("Update"),
+              ),
+            ],
+          );
+        },
+      );
+    }
 
-  Future<String> _uploadBusinessImage(
-      String imagePath, String uid, int index) async {
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('business_images/$uid/image_$index.jpg');
-    final uploadTask = storageRef.putFile(File(imagePath));
-    final snapshot = await uploadTask;
-    return await snapshot.ref.getDownloadURL();
+    Future<String> _uploadBusinessImage(
+        String imagePath, String uid, int index) async {
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('business_images/$uid/image_$index.jpg');
+      final uploadTask = storageRef.putFile(File(imagePath));
+      final snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    }
   }
-}

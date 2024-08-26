@@ -52,6 +52,7 @@ dependencies:
   share_plus: ^10.0.0
   flutter_image_compress: ^2.3.0
   screenshot: ^3.0.0
+  photo_manager: ^3.2.3
 
 dev_dependencies:
   flutter_test:

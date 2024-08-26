@@ -81,143 +81,145 @@ class _LoginScreenState extends State<LoginScreen> {
                   topRight: Radius.circular(30),
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    width: 315,
-                    child: TextField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: const Color(0xFFF3F5F7),
-                        labelText: 'Email',
-                        hintStyle: const TextStyle(
-                          fontFamily: 'CircularStd',
-                          fontSize: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 16),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    width: 315,
-                    child: TextField(
-                      controller: _passwordController,
-                      obscureText: _obscureText,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: const Color(0xFFF3F5F7),
-                        labelText: 'Password',
-                        hintStyle: const TextStyle(
-                          fontFamily: 'CircularStd',
-                          fontSize: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 16),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? Icons.visibility
-                                : Icons.visibility_off,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      width: 315,
+                      child: TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFF3F5F7),
+                          labelText: 'Email',
+                          hintStyle: const TextStyle(
+                            fontFamily: 'CircularStd',
+                            fontSize: 16,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
                         ),
                       ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ForgotPasswordScreen()),
-                      );
-                    },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: Color(0xFF5252C7),
-                        fontSize: 14,
-                        fontFamily: 'CircularStd',
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      width: 315,
+                      child: TextField(
+                        controller: _passwordController,
+                        obscureText: _obscureText,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFF3F5F7),
+                          labelText: 'Password',
+                          hintStyle: const TextStyle(
+                            fontFamily: 'CircularStd',
+                            fontSize: 16,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureText
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 52,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF5151C6), Color(0xFF888BF4)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ForgotPasswordScreen()),
+                        );
+                      },
                       child: const Text(
-                        'LOGIN',
+                        'Forgot Password?',
                         style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
+                          color: Color(0xFF5252C7),
+                          fontSize: 14,
                           fontFamily: 'CircularStd',
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Don't have an account?",
-                        style: TextStyle(
-                          fontFamily: 'CircularStd',
-                          fontSize: 14,
+                    const SizedBox(height: 20),
+                    Container(
+                      height: 52,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF5151C6), Color(0xFF888BF4)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _login,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        child: const Text(
+                          'LOGIN',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontFamily: 'CircularStd',
+                          ),
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SignupScreen()),
-                          );
-                        },
-                        child: const Text(
-                          'SIGN UP',
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Don't have an account?",
                           style: TextStyle(
                             fontFamily: 'CircularStd',
-                            color: Color(0xFF5252C7),
                             fontSize: 14,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignupScreen()),
+                            );
+                          },
+                          child: const Text(
+                            'SIGN UP',
+                            style: TextStyle(
+                              fontFamily: 'CircularStd',
+                              color: Color(0xFF5252C7),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -21,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _pages = [
       HomeScreen(email: widget.email),
-      CreateQuotesPage(),
+      CreateQuotesPage(email: widget.email),
       ProfilePage(email: widget.email),
     ];
   }
@@ -30,7 +30,8 @@ class _MainScreenState extends State<MainScreen> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CreateQuotesPage()),
+        MaterialPageRoute(
+            builder: (context) => CreateQuotesPage(email: widget.email)),
       );
     } else {
       setState(() {
