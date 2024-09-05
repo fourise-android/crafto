@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditQuote extends StatefulWidget {
@@ -31,6 +32,14 @@ class _EditQuoteState extends State<EditQuote> {
   String phone = '';
   bool isPickingImage = false;
   final String uid = FirebaseAuth.instance.currentUser!.uid;
+  String companyName = "";
+  String businessAddress = "";
+  String contactNumber = "";
+  String UserContactNumber = "";
+  String businessMail = "";
+  String BusinessimageUrl = "";
+  List<String> storedImageUrls = [];
+  List<String> imageUrls = [];
 
   @override
   void initState() {
@@ -67,20 +76,28 @@ class _EditQuoteState extends State<EditQuote> {
           .collection('business_information')
           .doc(uid)
           .get();
+
       if (businessDoc.exists) {
         final data = businessDoc.data();
         name = data?['companyName'] ?? '';
+        contactNumber = data?['contactNumber'];
+        businessMail = data?['businessMail'];
+
+        List<String>? logoUrls = List<String>.from(data?['businessLogoUrls']);
+        BusinessimageUrl = logoUrls[0];
       }
     } else {
       final userDoc = await FirebaseFirestore.instance
           .collection('user_details')
           .doc(uid)
           .get();
+
       if (userDoc.exists) {
         final data = userDoc.data();
         name = data?['name'] ?? '';
       }
     }
+
     return name;
   }
 
@@ -400,8 +417,6 @@ class _EditQuoteState extends State<EditQuote> {
                 child: Stack(
                   children: [
                     Container(
-                      width: containerWidth,
-                      height: containerHeight,
                       decoration: BoxDecoration(
                         color: Colors.blueAccent,
                         borderRadius: BorderRadius.circular(16.0),
@@ -415,9 +430,9 @@ class _EditQuoteState extends State<EditQuote> {
                       ),
                     ),
                     Positioned(
-                      bottom: 20,
-                      left: 20,
-                      right: 20,
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
                       child: FutureBuilder<String>(
                         future: fetchName(isBusiness, uid),
                         builder: (context, snapshot) {
@@ -439,7 +454,11 @@ class _EditQuoteState extends State<EditQuote> {
                                 }
                               },
                               child: _buildUserPhotoAndName(
-                                  isBusiness, name, photoUrl, businessLogoUrl),
+                                  isBusiness,
+                                  contactNumber,
+                                  name,
+                                  businessLogoUrl,
+                                  businessMail),
                             );
                           } else {
                             return const Center(
@@ -529,55 +548,291 @@ class _EditQuoteState extends State<EditQuote> {
   }
 
   Widget _buildUserPhotoAndName(
-      bool isBusiness, String name, String? photoUrl, String? businessLogoUrl) {
+    bool isBusiness,
+    String contactNumber,
+    String name,
+    String? businessLogoUrl,
+    String email,
+  ) {
     String imageUrl =
         isBusiness && businessLogoUrl != null && businessLogoUrl.isNotEmpty
             ? businessLogoUrl
-            : (photoUrl != null && photoUrl.isNotEmpty
-                ? photoUrl
-                : 'default_image_url');
+            : (photoUrl.isNotEmpty ? photoUrl : 'default_image_url');
 
-    return Container(
-      height: 100,
-      child: PageView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildSingleContainer(name, imageUrl),
-          _buildSquareContainer(name, imageUrl),
-          _buildSingleContainer(name, imageUrl),
-        ],
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: 300,
+        child: isBusiness
+            ? PageView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _businessImageNameBarContainer(
+                      name: name, email: email, imageUrl: imageUrl),
+                  _businessImageNameBarRightContainer(
+                      name: name, email: email, imageUrl: imageUrl),
+                  _businessWhiteBackgroundContainer(
+                      name: name, email: email, imageUrl: imageUrl),
+                  _businessSquareImageBagroundContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.grey[300]!,
+                    shadowColor: Colors.grey[600]!,
+                  ),
+                  _businessSquareImageBagroundContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.yellow[300]!,
+                    shadowColor: Colors.yellow[600]!,
+                  ),
+                  _businessSquareImageBagroundContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.orange[300]!,
+                    shadowColor: Colors.orange[600]!,
+                  ),
+                  _businessSquareImageBagroundContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.green[300]!,
+                    shadowColor: Colors.green[600]!,
+                  ),
+                  _businessSquareImageBagroundContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.blue[300]!,
+                    shadowColor: Colors.blue[600]!,
+                  ),
+                  _businessSquareImageBagroundRigthContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.grey[300]!,
+                    shadowColor: Colors.grey[600]!,
+                  ),
+                  _businessSquareImageBagroundRigthContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.yellow[300]!,
+                    shadowColor: Colors.yellow[600]!,
+                  ),
+                  _businessSquareImageBagroundRigthContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.orange[300]!,
+                    shadowColor: Colors.orange[600]!,
+                  ),
+                  _businessSquareImageBagroundRigthContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.green[300]!,
+                    shadowColor: Colors.green[600]!,
+                  ),
+                  _businessSquareImageBagroundRigthContainer(
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                    textBackgroundColor: Colors.blue[300]!,
+                    shadowColor: Colors.blue[600]!,
+                  ),
+                  _businessSquareImageContainer(
+                      name: name, email: email, imageUrl: imageUrl),
+                  _businessSquareRigthImageContainer(
+                      name: name, email: email, imageUrl: imageUrl),
+                ],
+              )
+            : PageView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _userSquareImageContainer(name, imageUrl),
+                  _userSquarerigthImageContainer(name, imageUrl),
+                  _userSquareImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.grey[300]!,
+                    Colors.grey[600]!,
+                  ),
+                  _userSquareImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.yellow[300]!,
+                    Colors.yellow[600]!,
+                  ),
+                  _userSquareImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.orange[300]!,
+                    Colors.orange[600]!,
+                  ),
+                  _userSquareImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.green[300]!,
+                    Colors.green[600]!,
+                  ),
+                  _userSquareImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.blue[300]!,
+                    Colors.blue[600]!,
+                  ),
+                  _userSquareRigthImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.grey[300]!,
+                    Colors.grey[600]!,
+                  ),
+                  _userSquareRigthImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.yellow[300]!,
+                    Colors.yellow[600]!,
+                  ),
+                  _userSquareRigthImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.orange[300]!,
+                    Colors.orange[600]!,
+                  ),
+                  _userSquareRigthImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.green[300]!,
+                    Colors.green[600]!,
+                  ),
+                  _userSquareRigthImageBackgroundContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.blue[300]!,
+                    Colors.blue[600]!,
+                  ),
+                  _userimagenamebarWhitecontainer(name, imageUrl),
+                  _userImageNameBarWhiteShadowContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.grey.withOpacity(0.5),
+                    Colors.grey.withOpacity(0.8),
+                  ),
+                  _userImageNameBarWhiteShadowContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.yellow[700]!.withOpacity(0.5),
+                    Colors.yellow[900]!.withOpacity(0.8),
+                  ),
+                  _userImageNameBarWhiteShadowContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.orange[700]!.withOpacity(0.5),
+                    Colors.orange[900]!.withOpacity(0.8),
+                  ),
+                  _userImageNameBarWhiteShadowContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.green[700]!.withOpacity(0.5),
+                    Colors.green[900]!.withOpacity(0.8),
+                  ),
+                  _userImageNameBarWhiteShadowContainer(
+                    name,
+                    imageUrl,
+                    phone,
+                    Colors.blue[700]!.withOpacity(0.5),
+                    Colors.blue[900]!.withOpacity(0.8),
+                  ),
+                  _userwhitebagroundcontainer(name, imageUrl),
+                  _userimagenamebarcontainer(name, imageUrl),
+                ],
+              ),
       ),
     );
   }
 
-  Widget _buildSingleContainer(String name, String imageUrl) {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            spreadRadius: 2,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
+  Widget _businessImageNameBarContainer({
+    required String name,
+    required String email,
+    required String imageUrl,
+  }) {
+    double fontSize = name.length <= 17 ? 16.0 : 10.0;
+
+    return Align(
+      alignment: Alignment.bottomLeft,
       child: Row(
         children: [
           CircleAvatar(
-            radius: 30,
-            backgroundImage: NetworkImage(imageUrl),
+            radius: 50,
+            backgroundImage: NetworkImage(BusinessimageUrl),
           ),
-          const SizedBox(width: 12),
-          Text(
-            name,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          const SizedBox(width: 5),
+          Container(
+            height: 85,
+            width: 270,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 5,
+                  spreadRadius: 2,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      contactNumber,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      businessMail,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -585,35 +840,1083 @@ class _EditQuoteState extends State<EditQuote> {
     );
   }
 
-  Widget _buildSquareContainer(String name, String imageUrl) {
+  Widget _businessImageNameBarRightContainer({
+    required String name,
+    required String email,
+    required String imageUrl,
+  }) {
+    double fontSize = name.length <= 17 ? 16.0 : 10.0;
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Align(
+        alignment: Alignment.bottomLeft,
+        child: Row(
+          children: [
+            Container(
+              height: 85,
+              width: 270,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black38,
+                    blurRadius: 5,
+                    spreadRadius: 2,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        contactNumber,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        businessMail,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: NetworkImage(businessLogoUrl),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _businessWhiteBackgroundContainer({
+    required String name,
+    required String email,
+    required String imageUrl,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CircleAvatar(
+            radius: 70,
+            backgroundImage: NetworkImage(BusinessimageUrl),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            height: 55,
+            width: 400,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  contactNumber,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  businessMail,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _businessSquareImageContainer({
+    required String name,
+    required String email,
+    required String imageUrl,
+  }) {
+    double fontSize = name.length <= 17 ? 16.0 : 10.0;
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    image: NetworkImage(BusinessimageUrl),
+                    fit: BoxFit.fitWidth,
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: 65,
+                width: 240,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          contactNumber,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          businessMail,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _businessSquareImageBagroundContainer({
+    required String name,
+    required String email,
+    required String imageUrl,
+    required Color textBackgroundColor,
+    required Color shadowColor,
+  }) {
+    double fontSize = name.length <= 17 ? 16.0 : 10.0;
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          // Image Container
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: NetworkImage(BusinessimageUrl),
+                  fit: BoxFit.cover,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor.withOpacity(0.6),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 65,
+              width: 240,
+              decoration: BoxDecoration(
+                color: textBackgroundColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor.withOpacity(0.4),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        contactNumber,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        businessMail,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _businessSquareImageBagroundRigthContainer({
+    required String name,
+    required String email,
+    required String imageUrl,
+    required Color textBackgroundColor,
+    required Color shadowColor,
+  }) {
+    double fontSize = name.length <= 17 ? 16.0 : 10.0;
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 65,
+              width: 240,
+              decoration: BoxDecoration(
+                color: textBackgroundColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor.withOpacity(0.4),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        contactNumber,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        businessMail,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: NetworkImage(BusinessimageUrl),
+                  fit: BoxFit.cover,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor.withOpacity(0.6),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _businessSquareRigthImageContainer({
+    required String name,
+    required String email,
+    required String imageUrl,
+  }) {
+    double fontSize = name.length <= 17 ? 16.0 : 10.0;
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: 65,
+                width: 240,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          contactNumber,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          businessMail,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    image: NetworkImage(BusinessimageUrl),
+                    fit: BoxFit.fitWidth,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _userSquareImageContainer(String name, String imageUrl) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
       decoration: BoxDecoration(
-        color: Colors.transparent,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            spreadRadius: 2,
-            offset: Offset(0, 3),
-          ),
-        ],
       ),
       child: Row(
         children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 123,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: NetworkImage(imageUrl),
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 60,
+              width: 240,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "+91 " + phone,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _userSquarerigthImageContainer(String name, String imageUrl) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 60,
+              width: 240,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "+91 " + phone,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: NetworkImage(imageUrl),
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _userSquareImageBackgroundContainer(String name, String imageUrl,
+      String phone, Color textBackgroundColor, Color shadowColor) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: NetworkImage(imageUrl),
+                  fit: BoxFit.fitWidth,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor.withOpacity(0.6),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 60,
+              width: 240,
+              decoration: BoxDecoration(
+                color: textBackgroundColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor.withOpacity(0.4),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        "+91 $phone",
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _userSquareRigthImageBackgroundContainer(String name, String imageUrl,
+      String phone, Color textBackgroundColor, Color shadowColor) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 60,
+              width: 240,
+              decoration: BoxDecoration(
+                color: textBackgroundColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor.withOpacity(0.4),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        "+91 $phone",
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: NetworkImage(imageUrl),
+                  fit: BoxFit.fitWidth,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: shadowColor.withOpacity(0.6),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _userwhitebagroundcontainer(String name, String imageUrl) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: 195,
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 70,
+              backgroundImage: NetworkImage(imageUrl),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 400,
+              color: Colors.white,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    phone,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _userShadowimagecontaineer(String name, String imageUrl) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Row(
+          children: [
+            CircleAvatar(
+              radius: 70,
+              backgroundImage: NetworkImage(imageUrl),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              height: 60,
+              width: 200,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black45,
+                    blurRadius: 5,
+                    spreadRadius: 2,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    "+91 " + phone,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _userimagenamebarcontainer(String name, String imageUrl) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        children: [
           CircleAvatar(
-            radius: 50,
+            radius: 70,
             backgroundImage: NetworkImage(imageUrl),
           ),
-          const SizedBox(width: 12),
-          Text(
-            name,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          Container(
+            height: 70,
+            width: 200,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 5,
+                  spreadRadius: 2,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      "+91 " + phone,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _userimagenamebarWhitecontainer(String name, String imageUrl) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: CircleAvatar(
+              radius: 70,
+              backgroundImage: NetworkImage(imageUrl),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 70,
+              width: 250,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.white70,
+                    spreadRadius: 2,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Align(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        "+91 $phone",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _userImageNameBarWhiteShadowContainer(String name, String imageUrl,
+      String phone, Color backgroundColor, Color shadowColor) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  const BoxShadow(
+                    color: Colors.white70,
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                  BoxShadow(
+                    color: shadowColor, // Secondary shadow color
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: const Offset(-3, -3),
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 70,
+                backgroundImage: NetworkImage(imageUrl),
+              ),
+            ),
+          ),
+          // Space between the avatar and text container
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 70,
+              constraints: const BoxConstraints(
+                minWidth: 170,
+                maxWidth: 230, // Responsive width
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: backgroundColor, // Background color for text container
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.white70,
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Align(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        "+91 $phone",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],

@@ -77,8 +77,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        // Instead of returning to the LoginScreen, use Navigator.pop()
-        // to return to the previous screen without causing a crash.
+        // Navigate back to the login screen without causing a crash
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),

@@ -53,6 +53,8 @@ dependencies:
   flutter_image_compress: ^2.3.0
   screenshot: ^3.0.0
   photo_manager: ^3.2.3
+  image_gallery_saver: ^2.0.3
+  file_picker: ^8.0.7
 
 dev_dependencies:
   flutter_test:

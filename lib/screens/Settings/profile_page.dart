@@ -24,7 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String? _profileImageUrl;
   double _uploadProgress = 0;
   bool _isLoading = true;
-  bool _isPickingImage = false; // Flag to prevent multiple image picker calls
+  bool _isPickingImage = false;
 
   @override
   void initState() {
@@ -43,8 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
           .get();
 
       if (userDoc.exists) {
-        Map<String, dynamic>? data =
-            userDoc.data() as Map<String, dynamic>?; // Cast the data
+        Map<String, dynamic>? data = userDoc.data() as Map<String, dynamic>?;
 
         if (data != null) {
           _nameController.text = data['name'] ?? '';
@@ -63,10 +62,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _pickImage() async {
-    if (_isPickingImage) return; // Prevent multiple calls
+    if (_isPickingImage) return;
 
     setState(() {
-      _isPickingImage = true; // Set the flag to true
+      _isPickingImage = true;
     });
 
     try {
@@ -80,7 +79,7 @@ class _ProfilePageState extends State<ProfilePage> {
       print('Error picking image: $e');
     } finally {
       setState(() {
-        _isPickingImage = false; // Reset the flag when done
+        _isPickingImage = false;
       });
     }
   }
@@ -106,7 +105,6 @@ class _ProfilePageState extends State<ProfilePage> {
     String? downloadUrl;
 
     if (_imageFile != null) {
-      // Delete the previous image if it exists
       if (_profileImageUrl != null && _profileImageUrl!.isNotEmpty) {
         final previousImageRef =
             FirebaseStorage.instance.refFromURL(_profileImageUrl!);
@@ -155,9 +153,9 @@ class _ProfilePageState extends State<ProfilePage> {
         final snapshot = await uploadTask.whenComplete(() {});
         downloadUrl = await snapshot.ref.getDownloadURL();
 
-        Navigator.pop(context); // Close the progress dialog
+        Navigator.pop(context);
       } on FirebaseException catch (e) {
-        Navigator.pop(context); // Close the progress dialog
+        Navigator.pop(context);
         print('Error uploading image: ${e.message}');
         return;
       }
@@ -178,7 +176,6 @@ class _ProfilePageState extends State<ProfilePage> {
         const SnackBar(content: Text('Profile updated successfully')),
       );
 
-      // Show a success popup
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -247,38 +244,38 @@ class _ProfilePageState extends State<ProfilePage> {
                   decoration: InputDecoration(
                     labelText: 'Name',
                     labelStyle: const TextStyle(
-                      color: Colors.black, // Label text color
-                      fontSize: 16, // Label text size
-                      fontFamily: 'CircularStd', // Label font family
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'CircularStd',
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                       borderSide: const BorderSide(
-                        color: Colors.black, // Border color
-                        width: 1.0, // Border width
+                        color: Colors.black,
+                        width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                       borderSide: const BorderSide(
-                        color: Colors.black, // Border color when focused
-                        width: 1.0, // Border width when focused
+                        color: Colors.black,
+                        width: 1.0,
                       ),
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                       borderSide: const BorderSide(
-                        color: Colors.black, // Border color
-                        width: 1.0, // Border width
+                        color: Colors.black,
+                        width: 1.0,
                       ),
                     ),
                   ),
                   style: const TextStyle(
-                    color: Colors.black, // Text color
-                    fontSize: 16, // Text size
-                    fontFamily: 'CircularStd', // Font family
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'CircularStd',
                   ),
                 ),
               ),

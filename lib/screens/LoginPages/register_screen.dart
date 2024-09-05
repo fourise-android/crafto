@@ -523,23 +523,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Container(
               padding: const EdgeInsets.all(20),
               color: Colors.white,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 20),
-                  _buildTextField(_nameController, 'Name'),
-                  _buildTextField(_emailController, 'Email', isReadOnly: true),
-                  _buildPhoneField(),
-                  _buildLanguageDropdown(),
-                  if (_uploadProgress > 0) ...[
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     const SizedBox(height: 20),
-                    LinearProgressIndicator(value: _uploadProgress / 100),
+                    _buildTextField(_nameController, 'Name'),
+                    _buildTextField(_emailController, 'Email',
+                        isReadOnly: true),
+                    _buildPhoneField(),
+                    _buildLanguageDropdown(),
+                    if (_uploadProgress > 0) ...[
+                      const SizedBox(height: 20),
+                      LinearProgressIndicator(value: _uploadProgress / 100),
+                      const SizedBox(height: 20),
+                    ],
+                    _buildSignUpButton(),
                     const SizedBox(height: 20),
+                    _buildSignInLink(),
                   ],
-                  _buildSignUpButton(),
-                  const SizedBox(height: 20),
-                  _buildSignInLink(),
-                ],
+                ),
               ),
             ),
           ),
@@ -685,6 +688,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           style: TextStyle(
             fontFamily: 'CircularStd',
             fontSize: 16,
+            color: Colors.white,
           ),
         ),
       ),
@@ -696,13 +700,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       onTap: () {
         Navigator.pop(context);
       },
-      child: const Text(
-        'Already have an account? Sign In',
-        style: TextStyle(
-          fontFamily: 'CircularStd',
-          fontSize: 16,
-          color: Colors.blue,
-        ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Already have an account?"),
+          Text(
+            ' Sign In',
+            style: TextStyle(
+              fontFamily: 'CircularStd',
+              fontSize: 16,
+              color: Color(0xFF888BF4),
+            ),
+          ),
+        ],
       ),
     );
   }

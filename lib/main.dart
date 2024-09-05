@@ -20,7 +20,33 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFF3F5F7)),
         useMaterial3: true,
       ),
-      home: SplashScreen(),
+      home: WillPopScope(
+        onWillPop: () async {
+          final shouldPop = await showExitPopup(context);
+          return shouldPop ?? false;
+        },
+        child: SplashScreen(),
+      ),
+    );
+  }
+
+  Future<bool?> showExitPopup(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Exit App'),
+        content: Text('Do you want to exit the app?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Yes'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -111,6 +111,7 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
+    double fontSize = widget.email.length <= 20 ? 9.0 : 12.0;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -197,12 +198,14 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                               Text(
                                 widget.email,
-                                style: const TextStyle(
-                                  fontSize: 16,
+                                style: TextStyle(
+                                  fontSize: fontSize,
                                   color: Colors.grey,
                                   fontFamily: 'CircularStd',
                                 ),
-                              ),
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
+                              )
                             ],
                           ),
                         ],
