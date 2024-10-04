@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ContactFormPage extends StatefulWidget {
+  const ContactFormPage({super.key});
+
   @override
   _ContactFormPageState createState() => _ContactFormPageState();
 }

@@ -11,7 +11,7 @@ class SelectLanguage extends StatefulWidget {
 
 class _SelectLanguageState extends State<SelectLanguage> {
   int _selectedIndex = 1;
-  final List<String> _languages = ['Marathi', 'English', 'Hindi', 'Gujarati'];
+  final List<String> _languages = ['Marathi', 'English', 'Hindi', 'Kannada'];
   final List<List<Color>> _colors = [
     [Colors.orange, Colors.red],
     [Colors.blue, Colors.lightBlue],

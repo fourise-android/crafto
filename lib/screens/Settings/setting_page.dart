@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pic_poster/screens/HomePage/main_screen.dart';
 import 'package:pic_poster/screens/Settings/about_us_page.dart';
 import 'package:pic_poster/screens/Settings/contact_us.dart';
 import 'package:pic_poster/screens/Settings/profile_page.dart';
@@ -63,7 +64,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _changeLanguage(BuildContext context) async {
-    final List<String> languages = ['English', 'Hindi', 'Marathi', 'Gujarati'];
+    final List<String> languages = ['English', 'Hindi', 'Marathi', 'Kannada'];
     String? selectedLanguage;
 
     await showDialog(
@@ -112,159 +113,177 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     double fontSize = widget.email.length <= 20 ? 9.0 : 12.0;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => MainScreen(
+                  email: widget.email ??
+                      '')), // Replace with your home page widget
+        );
+        return false; // Prevents the default back button behavior
+      },
+      child: Scaffold(
         backgroundColor: Colors.white,
-        title: const Center(child: Text('Settings')),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Center(child: Text('Settings')),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MainScreen(
+                      email: widget.email ?? '')), // Navigate to the home page
+            ),
+          ),
         ),
-      ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _fetchUserDetails(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No user data found.'));
-          } else {
-            final userData = snapshot.data!;
-            return Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ProfilePage(email: widget.email),
+        body: FutureBuilder<Map<String, dynamic>>(
+          future: _fetchUserDetails(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No user data found.'));
+            } else {
+              final userData = snapshot.data!;
+              return Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProfilePage(email: widget.email),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F1FE),
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F1FE),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          FutureBuilder<String>(
-                            future: _fetchProfilePhotoUrl(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const CircleAvatar(
-                                  radius: 40,
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else if (snapshot.hasError) {
-                                return const CircleAvatar(
-                                  radius: 40,
-                                  child: Icon(Icons.error),
-                                );
-                              } else if (!snapshot.hasData) {
-                                return const CircleAvatar(
-                                  radius: 40,
-                                  child: Icon(Icons.person),
-                                );
-                              } else {
-                                return CircleAvatar(
-                                  radius: 40,
-                                  backgroundImage: NetworkImage(snapshot.data!),
-                                );
-                              }
-                            },
-                          ),
-                          const SizedBox(width: 20),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                userData['name'] ?? 'N/A',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'CircularStd',
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            FutureBuilder<String>(
+                              future: _fetchProfilePhotoUrl(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircleAvatar(
+                                    radius: 40,
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return const CircleAvatar(
+                                    radius: 40,
+                                    child: Icon(Icons.error),
+                                  );
+                                } else if (!snapshot.hasData) {
+                                  return const CircleAvatar(
+                                    radius: 40,
+                                    child: Icon(Icons.person),
+                                  );
+                                } else {
+                                  return CircleAvatar(
+                                    radius: 40,
+                                    backgroundImage:
+                                        NetworkImage(snapshot.data!),
+                                  );
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 20),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  userData['name'] ?? 'N/A',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'CircularStd',
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                widget.email,
-                                style: TextStyle(
-                                  fontSize: fontSize,
-                                  color: Colors.grey,
-                                  fontFamily: 'CircularStd',
-                                ),
-                                softWrap: true,
-                                overflow: TextOverflow.visible,
-                              )
-                            ],
-                          ),
-                        ],
+                                Text(
+                                  widget.email,
+                                  style: TextStyle(
+                                    fontSize: fontSize,
+                                    color: Colors.grey,
+                                    fontFamily: 'CircularStd',
+                                  ),
+                                  softWrap: true,
+                                  overflow: TextOverflow.visible,
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Other Settings",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'CircularStd',
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Other Settings",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'CircularStd',
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildSettingButton(
-                    icon: Icons.contact_mail,
-                    label: 'Contact Us',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ContactFormPage(),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _buildSettingButton(
-                    icon: Icons.language,
-                    label: 'Change Language',
-                    onPressed: () => _changeLanguage(context),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildSettingButton(
-                    icon: Icons.info,
-                    label: 'About Us',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AboutUsPage(),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _buildSettingButton(
-                    icon: Icons.logout,
-                    label: 'Logout',
-                    onPressed: _logout,
-                    textColor: Colors.black,
-                  ),
-                ],
-              ),
-            );
-          }
-        },
+                    const SizedBox(height: 20),
+                    _buildSettingButton(
+                      icon: Icons.contact_mail,
+                      label: 'Contact Us',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ContactFormPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _buildSettingButton(
+                      icon: Icons.language,
+                      label: 'Change Language',
+                      onPressed: () => _changeLanguage(context),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildSettingButton(
+                      icon: Icons.info,
+                      label: 'About Us',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AboutUsPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _buildSettingButton(
+                      icon: Icons.logout,
+                      label: 'Logout',
+                      onPressed: _logout,
+                      textColor: Colors.black,
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -276,7 +295,7 @@ class _SettingPageState extends State<SettingPage> {
     Color backgroundColor = const Color(0xFFF6F7F9),
     Color textColor = Colors.black,
   }) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 52,
       child: ElevatedButton.icon(

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "88115024354",
-    "project_id": "crafto-copy",
-    "storage_bucket": "crafto-copy.appspot.com"
+    "project_number": "558518673636",
+    "project_id": "picposter-385d5",
+    "storage_bucket": "picposter-385d5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:88115024354:android:57f43f352aefa716c529bb",
+        "mobilesdk_app_id": "1:558518673636:android:a353800131ccff3dd30cf1",
         "android_client_info": {
           "package_name": "com.example.admin"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDRe4llB6VNKMDklUCFS0FXguDnE9zL7HA"
+          "current_key": "AIzaSyDvl8wZTe9DoYWRJaiKljoVeSOsiYTBRG4"
         }
       ],
       "services": {
@@ -26,15 +26,34 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:88115024354:android:f04db9071b6f91b6c529bb",
+        "mobilesdk_app_id": "1:558518673636:android:461ed06df3a3c50ad30cf1",
         "android_client_info": {
-          "package_name": "com.example.pic_poster"
+          "package_name": "com.fourise.pic_poster"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDRe4llB6VNKMDklUCFS0FXguDnE9zL7HA"
+          "current_key": "AIzaSyDvl8wZTe9DoYWRJaiKljoVeSOsiYTBRG4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:558518673636:android:dd381b5e93553a1dd30cf1",
+        "android_client_info": {
+          "package_name": "com.fourise.pic_poster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvl8wZTe9DoYWRJaiKljoVeSOsiYTBRG4"
         }
       ],
       "services": {

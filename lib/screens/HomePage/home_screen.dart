@@ -2,13 +2,12 @@
 
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pic_poster/screens/HomePage/edit_templet.dart';
+import 'package:pic_poster/screens/LoginPages/register_screen.dart';
 import 'package:pic_poster/screens/Settings/setting_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -56,11 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
         });
         _fetchFiltersAndImages();
       } else {
-        setState(() {
-          preferredLanguage = 'Not set';
-          isDataLoaded = true;
-        });
-        _fetchFiltersAndImages();
+        // If user details are not found, redirect to the RegisterScreen
+        _redirectToRegisterScreen();
       }
     } catch (e) {
       setState(() {
@@ -72,8 +68,17 @@ class _HomeScreenState extends State<HomeScreen> {
           content: Text('Error fetching user details.'),
         ),
       );
-      _fetchFiltersAndImages();
+      _redirectToRegisterScreen();
     }
+  }
+
+  void _redirectToRegisterScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegisterScreen(email: widget.email),
+      ),
+    );
   }
 
   Future<Map<String, String>> fetchUserForTemplets(String email) async {
@@ -296,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
         body: Container(
           color: Colors.white,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
             child: Container(
               color: const Color(0xFFF3F5F7),
               child: Column(
@@ -311,12 +316,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Container(
+                                  SizedBox(
                                       height: 70,
                                       width: 90,
                                       child: Image.asset(
                                           'assets/images/PicPoster.png')),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
@@ -662,7 +667,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           children: [
                                                             const SizedBox(
                                                                 height: 15),
-                                                            Container(
+                                                            SizedBox(
                                                               height: MediaQuery.of(
                                                                           context)
                                                                       .size

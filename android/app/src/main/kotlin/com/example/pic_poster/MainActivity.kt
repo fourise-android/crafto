@@ -1,4 +1,4 @@
-package com.example.pic_poster
+package com.fourise.pic_poster
 
 import io.flutter.embedding.android.FlutterActivity
 

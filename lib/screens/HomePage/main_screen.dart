@@ -49,7 +49,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           Container(
             height: 75,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
             ),
@@ -90,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
               child: Container(
                 width: 70,
                 height: 70,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [Color(0xFF888BF4), Color(0xFF5151C6)],
@@ -98,7 +98,7 @@ class _MainScreenState extends State<MainScreen> {
                     end: Alignment.bottomCenter,
                   ),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.add_circle_rounded,
                   size: 60,
                   color: Colors.white,
@@ -120,7 +120,7 @@ class _MainScreenState extends State<MainScreen> {
   }) {
     return GestureDetector(
       onTap: () => _onItemTapped(index),
-      child: Container(
+      child: SizedBox(
         width: isSpecial ? 90 : 60,
         height: isSpecial ? 90 : 75,
         child: Stack(
@@ -129,7 +129,7 @@ class _MainScreenState extends State<MainScreen> {
             if (!isSpecial)
               ShaderMask(
                 shaderCallback: (Rect bounds) {
-                  return LinearGradient(
+                  return const LinearGradient(
                     colors: [Color(0xFF888BF4), Color(0xFF5151C6)],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,

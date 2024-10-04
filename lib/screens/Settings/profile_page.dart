@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pic_poster/screens/HomePage/main_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   final String email;
@@ -20,7 +21,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   String? _selectedLanguage;
-  final List<String> _languages = ['English', 'Hindi', 'Marathi', 'Gujarati'];
+  final List<String> _languages = ['English', 'Hindi', 'Marathi', 'Kannada'];
   String? _profileImageUrl;
   double _uploadProgress = 0;
   bool _isLoading = true;
@@ -85,20 +86,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _updateProfile() async {
-    if (_nameController.text.isEmpty || _phoneController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name and phone number are required')),
-      );
-      return;
-    }
-
-    if (_phoneController.text.length != 13) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number must be 13 digits')),
-      );
-      return;
-    }
-
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -173,7 +160,11 @@ class _ProfilePageState extends State<ProfilePage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
+        const SnackBar(
+          content: Text('Profile updated successfully'),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: 20.0, left: 16.0, right: 16.0),
+        ),
       );
 
       showDialog(
@@ -187,6 +178,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop();
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            MainScreen(email: user.email ?? '')),
+                    (route) => route.isFirst,
+                  );
                 },
               ),
             ],
@@ -198,6 +196,14 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => MainScreen(email: widget.email)),
+      (route) => route.isFirst,
+    );
+    return false; // Prevent default back navigation
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -206,225 +212,220 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: Color(0xFFF3F5F7),
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 70,
-                  backgroundColor: Colors.white,
-                  backgroundImage: _imageFile != null
-                      ? FileImage(File(_imageFile!.path))
-                      : (_profileImageUrl != null
-                          ? NetworkImage(_profileImageUrl!) as ImageProvider
-                          : null),
-                  child: _imageFile == null && _profileImageUrl == null
-                      ? const Icon(Icons.camera_alt,
-                          color: Colors.white, size: 30)
-                      : null,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF3F5F7),
+        appBar: AppBar(
+          title: const Text('Profile'),
+          backgroundColor: Colors.white,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: CircleAvatar(
+                    radius: 70,
+                    backgroundColor: Colors.white,
+                    backgroundImage: _imageFile != null
+                        ? FileImage(File(_imageFile!.path))
+                        : (_profileImageUrl != null
+                            ? NetworkImage(_profileImageUrl!) as ImageProvider
+                            : null),
+                    child: _imageFile == null && _profileImageUrl == null
+                        ? const Icon(Icons.camera_alt,
+                            color: Colors.white, size: 30)
+                        : null,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF6F7F9),
-                ),
-                child: TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    labelStyle: const TextStyle(
+                const SizedBox(height: 20),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF6F7F9),
+                  ),
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                      labelStyle: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontFamily: 'CircularStd',
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 16,
                       fontFamily: 'CircularStd',
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF6F7F9),
+                  ),
+                  child: TextField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      labelStyle: const TextStyle(
                         color: Colors.black,
-                        width: 1.0,
+                        fontSize: 16,
+                        fontFamily: 'CircularStd',
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1.0,
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1.0,
-                      ),
-                    ),
-                  ),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'CircularStd',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF6F7F9),
-                ),
-                child: TextField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: 'Phone Number',
-                    labelStyle: const TextStyle(
-                      color: Colors.black, // Label text color
-                      fontSize: 16, // Label text size
-                      fontFamily: 'CircularStd', // Label font family
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
-                        color: Colors.black, // Border color
-                        width: 1.0, // Border width
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
-                        color: Colors.black, // Border color when focused
-                        width: 1.0, // Border width when focused
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
-                        color: Colors.black, // Border color
-                        width: 1.0, // Border width
-                      ),
-                    ),
-                  ),
-                  style: const TextStyle(
-                    color: Colors.black, // Text color
-                    fontSize: 16, // Text size
-                    fontFamily: 'CircularStd', // Font family
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF6F7F9),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: DropdownButtonFormField<String>(
-                  value: _selectedLanguage,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedLanguage = newValue;
-                    });
-                  },
-                  items: _languages.map((String language) {
-                    return DropdownMenuItem<String>(
-                      value: language,
-                      child: Text(
-                        language,
-                        style: const TextStyle(
-                          color: Colors.black, // Text color
-                          fontSize: 16, // Text size
-                          fontFamily: 'CircularStd', // Font family
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
                         ),
                       ),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                    labelText: 'Preferred Language',
-                    // ignore: prefer_const_constructors
-                    labelStyle: TextStyle(
-                      color: Colors.black, // Label text color
-                      fontSize: 16, // Label text size
-                      fontFamily: 'CircularStd', // Label font family
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
-                        color: Colors.black, // Border color
-                        width: 1.0, // Border width
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
-                        color: Colors.black, // Border color when focused
-                        width: 1.0, // Border width when focused
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(
-                        color: Colors.black, // Border color
-                        width: 1.0, // Border width
-                      ),
-                    ),
-                  ),
-                  style: const TextStyle(
-                    color: Colors.black, // Text color
-                    fontSize: 16, // Text size
-                    fontFamily: 'CircularStd', // Font family
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Container(
-                width: double.infinity, // Fills the width of the parent
-                height: 52, // Set the height of the button
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF888BF4), Color(0xFF5151C6)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15), // Optional: Add border radius for rounded corners
-                ),
-                child: ElevatedButton(
-                  onPressed: _updateProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors
-                        .transparent, // Set background color to transparent so the gradient is visible
-                    shadowColor: Colors.transparent, // Remove shadow
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          15), // Match the container's border radius
-                    ),
-                  ),
-                  child: const Text(
-                    'Update Profile',
-                    style: TextStyle(
-                      color: Colors.white, // Text color
-                      fontSize: 16, // Text size
-                      fontFamily: 'CircularStd', // Font family
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'CircularStd',
                     ),
                   ),
                 ),
-              )
-            ],
+                const SizedBox(height: 20),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF6F7F9),
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedLanguage,
+                    items: _languages.map((language) {
+                      return DropdownMenuItem(
+                        value: language,
+                        child: Text(
+                          language,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontFamily: 'CircularStd',
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedLanguage = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Preferred Language',
+                      labelStyle: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontFamily: 'CircularStd',
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity, // Fills the width of the parent
+                  height: 52, // Set the height of the button
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF888BF4), Color(0xFF5151C6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                        15), // Optional: Add border radius for rounded corners
+                  ),
+                  child: ElevatedButton(
+                    onPressed: _updateProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors
+                          .transparent, // Set background color to transparent so the gradient is visible
+                      shadowColor: Colors.transparent, // Remove shadow
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            15), // Match the container's border radius
+                      ),
+                    ),
+                    child: const Text(
+                      'Update Profile',
+                      style: TextStyle(
+                        color: Colors.white, // Text color
+                        fontSize: 16, // Text size
+                        fontFamily: 'CircularStd', // Font family
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

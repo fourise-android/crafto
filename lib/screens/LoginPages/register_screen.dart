@@ -30,6 +30,15 @@ class _SignupScreenState extends State<SignupScreen> {
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
+    // Ensure password is at least 6 characters long
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Password must be at least 6 characters long.')),
+      );
+      return;
+    }
+
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Passwords do not match.')),
@@ -40,16 +49,40 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       final existingUser = await _auth.fetchSignInMethodsForEmail(email);
       if (existingUser.isNotEmpty) {
-        _showErrorPopup(
-          'An account already exists with this email. Please use a different email or log in.',
-          () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
+        User? user = _auth.currentUser;
+
+        if (user != null && user.emailVerified) {
+          final userDocument = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+
+          if (!userDocument.exists) {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .set({
+              'email': user.email,
+              'name': '',
+              'phone': '',
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('User details added to Firestore.')),
             );
-          },
-        );
-        return;
+          }
+
+          _showErrorPopup(
+            'An account already exists with this email. Please log in.',
+            () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+            },
+          );
+          return;
+        }
       }
 
       _showLoadingPopup('Sending verification email...');
@@ -66,24 +99,20 @@ class _SignupScreenState extends State<SignupScreen> {
         await user.sendEmailVerification();
 
         Navigator.pop(context);
-
         _showLoadingPopup('Please check your mailbox and verify your email.');
 
-        bool emailVerified = false;
-        while (!emailVerified) {
-          await Future.delayed(const Duration(seconds: 5));
-          await user?.reload();
-          user = _auth.currentUser;
-          emailVerified = user?.emailVerified ?? false;
-        }
+        await waitForEmailVerification(user, timeoutInSeconds: 300);
 
-        Navigator.pop(context);
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'email': user.email,
+          'name': '',
+          'phone': '',
+        });
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RegisterScreen(email: email),
-          ),
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('User details added to Firestore after verification.')),
         );
       }
     } catch (e) {
@@ -93,6 +122,65 @@ class _SignupScreenState extends State<SignupScreen> {
         const SnackBar(content: Text('An unexpected error occurred.')),
       );
     }
+  }
+
+  Future<void> waitForEmailVerification(User? user,
+      {int timeoutInSeconds = 300}) async {
+    bool emailVerified = user?.emailVerified ?? false;
+    int elapsedSeconds = 0;
+
+    while (!emailVerified && elapsedSeconds < timeoutInSeconds) {
+      await Future.delayed(const Duration(seconds: 5));
+      await user?.reload();
+      user = _auth.currentUser;
+      emailVerified = user?.emailVerified ?? false;
+      elapsedSeconds += 5;
+    }
+
+    if (!emailVerified) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Email verification timed out. Please try again later.')),
+      );
+      return;
+    }
+
+    // Show success popup before navigating to the profile screen
+    _showSuccessPopup(
+      'Your email verification is successfully completed. Please complete your profile.',
+      () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RegisterScreen(email: user?.email ?? ''),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSuccessPopup(String message, VoidCallback onConfirm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Success'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+                onConfirm(); // Navigate to the next screen
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showErrorPopup(String message, VoidCallback onConfirm) {
@@ -367,12 +455,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final String _selectedCountryCode = '+91';
   double _uploadProgress = 0;
   bool _isUploading = false;
 
   String? _selectedLanguage;
-  final List<String> _languages = ['English', 'Hindi', 'Marathi', 'Gujarati'];
+  final List<String> _languages = ['English', 'Hindi', 'Marathi', 'Kannada'];
 
   @override
   void initState() {
@@ -388,61 +475,63 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _uploadImageToFirebase() async {
-    if (_imageFile == null) return;
-
-    if (_nameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _imageFile == null ||
-        _selectedLanguage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All fields are required')),
-      );
+    if (_nameController.text.isEmpty) {
+      _showErrorMessage('Name is required');
       return;
     }
-
+    if (_emailController.text.isEmpty) {
+      _showErrorMessage('Email is required');
+      return;
+    }
+    if (_phoneController.text.isEmpty) {
+      _showErrorMessage('Phone number is required');
+      return;
+    }
     if (_phoneController.text.length != 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number must be 10 digits')),
-      );
+      _showErrorMessage('Phone number must be 10 digits');
+      return;
+    }
+    if (_imageFile == null) {
+      _showErrorMessage('Please select an image');
+      return;
+    }
+    if (_selectedLanguage == null) {
+      _showErrorMessage('Please select a preferred language');
       return;
     }
 
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      print('User is not authenticated');
+      _showErrorMessage('User is not authenticated');
       return;
     }
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Uploading'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LinearProgressIndicator(value: _uploadProgress / 100),
-              const SizedBox(height: 20),
-              Text('${_uploadProgress.toStringAsFixed(0)}%'),
-            ],
-          ),
-        );
-      },
-    );
-
     try {
+      setState(() {
+        _isUploading = true;
+      });
+
       final userId = user.uid;
-      final storageRef = FirebaseStorage.instance
+
+      // Reference for the regular profile picture upload
+      final storageRefProfile = FirebaseStorage.instance
           .ref()
           .child('User_Images')
           .child(userId)
           .child('DP.jpg');
 
-      final uploadTask = storageRef.putFile(File(_imageFile!.path));
+      // Reference for the secure profile picture upload
+      final storageRefSecure = FirebaseStorage.instance
+          .ref()
+          .child('Secure_User_Images')
+          .child(userId)
+          .child('Secure_DP.jpg');
 
-      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+      // Upload the regular profile picture
+      final uploadTaskProfile =
+          storageRefProfile.putFile(File(_imageFile!.path));
+
+      uploadTaskProfile.snapshotEvents.listen((TaskSnapshot snapshot) {
         setState(() {
           _uploadProgress = (snapshot.bytesTransferred.toDouble() /
                   snapshot.totalBytes.toDouble()) *
@@ -450,27 +539,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
       });
 
-      final snapshot = await uploadTask.whenComplete(() {});
-      final downloadUrl = await snapshot.ref.getDownloadURL();
+      final snapshotProfile = await uploadTaskProfile.whenComplete(() {});
+      final downloadUrlProfile = await snapshotProfile.ref.getDownloadURL();
 
-      await _storeUserDetails(downloadUrl);
+      // Upload the secure profile picture
+      final uploadTaskSecure = storageRefSecure.putFile(File(_imageFile!.path));
+
+      final snapshotSecure = await uploadTaskSecure.whenComplete(() {});
+      final downloadUrlSecure = await snapshotSecure.ref.getDownloadURL();
+
+      // Store user details with both profile picture URLs
+      await _storeUserDetails(downloadUrlProfile, downloadUrlSecure);
 
       Navigator.pop(context);
-
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => MainScreen(
-                  email: user.email!,
-                )),
+          builder: (context) => MainScreen(email: user.email!),
+        ),
       );
     } on FirebaseException catch (e) {
       Navigator.pop(context);
-      print('Error uploading image: ${e.message}');
+      _showErrorMessage('Error uploading image: ${e.message}');
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
     }
   }
 
-  Future<void> _storeUserDetails(String downloadUrl) async {
+// Method to show error messages
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  // Method to store user details in Firestore with both URLs
+  Future<void> _storeUserDetails(
+      String downloadUrlProfile, String downloadUrlSecure) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -480,8 +590,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await firestore.collection('user_details').doc(user.uid).set({
         'name': _nameController.text,
         'email': _emailController.text,
-        'phone': '$_selectedCountryCode${_phoneController.text}',
-        'profileImage': downloadUrl,
+        'phone': _phoneController.text,
+        'profileImage': downloadUrlProfile,
+        'secureProfileImage': downloadUrlSecure,
         'preferredLanguage': _selectedLanguage,
       });
     } catch (e) {

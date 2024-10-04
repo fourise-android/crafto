@@ -67,7 +67,7 @@ class AboutUsPage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
-            Container(
+            SizedBox(
               height: 300,
               width: 300,
               child: Image.asset(

@@ -17,17 +17,29 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,49 +52,11 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDbP6-_vJJtYatyRK7eBN9Hh8BEta2OjNM',
-    appId: '1:88115024354:web:05117106448552ebc529bb',
-    messagingSenderId: '88115024354',
-    projectId: 'crafto-copy',
-    authDomain: 'crafto-copy.firebaseapp.com',
-    storageBucket: 'crafto-copy.appspot.com',
-    measurementId: 'G-26WB39F6TS',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDRe4llB6VNKMDklUCFS0FXguDnE9zL7HA',
-    appId: '1:88115024354:android:f04db9071b6f91b6c529bb',
-    messagingSenderId: '88115024354',
-    projectId: 'crafto-copy',
-    storageBucket: 'crafto-copy.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAvI5bokABiwz3Upx39vPuE_vj_5NOc9BI',
-    appId: '1:88115024354:ios:c8d7d8e0b2fa7f00c529bb',
-    messagingSenderId: '88115024354',
-    projectId: 'crafto-copy',
-    storageBucket: 'crafto-copy.appspot.com',
-    iosBundleId: 'com.example.picPoster',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAvI5bokABiwz3Upx39vPuE_vj_5NOc9BI',
-    appId: '1:88115024354:ios:c8d7d8e0b2fa7f00c529bb',
-    messagingSenderId: '88115024354',
-    projectId: 'crafto-copy',
-    storageBucket: 'crafto-copy.appspot.com',
-    iosBundleId: 'com.example.picPoster',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDbP6-_vJJtYatyRK7eBN9Hh8BEta2OjNM',
-    appId: '1:88115024354:web:ebc16e463b626009c529bb',
-    messagingSenderId: '88115024354',
-    projectId: 'crafto-copy',
-    authDomain: 'crafto-copy.firebaseapp.com',
-    storageBucket: 'crafto-copy.appspot.com',
-    measurementId: 'G-HPTCBGVR9Y',
+    apiKey: 'AIzaSyDvl8wZTe9DoYWRJaiKljoVeSOsiYTBRG4',
+    appId: '1:558518673636:android:dd381b5e93553a1dd30cf1',
+    messagingSenderId: '558518673636',
+    projectId: 'picposter-385d5',
+    storageBucket: 'picposter-385d5.appspot.com',
   );
 }
